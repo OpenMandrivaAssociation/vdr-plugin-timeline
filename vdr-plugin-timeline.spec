@@ -2,7 +2,7 @@
 %define plugin	timeline
 %define name	vdr-plugin-%plugin
 %define version	1.0.141
-%define rel	11
+%define rel	12
 
 Summary:	VDR plugin: Show timer overview and collisions
 Name:		%name
