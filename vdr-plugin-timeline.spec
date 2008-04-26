@@ -2,7 +2,7 @@
 %define plugin	timeline
 %define name	vdr-plugin-%plugin
 %define version	1.0.141
-%define rel	12
+%define rel	13
 
 Summary:	VDR plugin: Show timer overview and collisions
 Name:		%name
@@ -12,8 +12,11 @@ Group:		Video
 License:	GPL
 URL:		http://www.js-home.org/vdr/timeline/
 Source:		vdr-%plugin-%version.tar.bz2
+Patch0:		91_timeline-1.0.141-1.5.0.dpatch
+Patch1:		92_timeline-1.0.141-vdr-1.5.3.dpatch
+Patch2:		timeline-1.0.141-i18n-1.6.patch
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	vdr-devel >= 1.4.1-6
+BuildRequires:	vdr-devel >= 1.6.0
 Requires:	vdr-abi = %vdr_abi
 
 %description
@@ -27,6 +30,10 @@ and
 
 %prep
 %setup -q -n %plugin-%version
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
+%vdr_plugin_prep
 
 %build
 %vdr_plugin_build
