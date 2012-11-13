@@ -1,0 +1,536 @@
+
+This is a semi-automatically created i18n adaptation patch and may contain
+errors (such as missing translations). This should only be used as a
+temporary measure until the upstream plugin maintainer fixes the plugin
+properly according to the instructions in i18n-to-gettext.pl.
+
+Created for Mandriva Linux packaging by Anssi Hannula <anssi@mandriva.org>.
+
+
+Index: timeline-1.0.141/Makefile
+===================================================================
+--- timeline-1.0.141/Makefile
++++ timeline-1.0.141/Makefile	2008-04-25 11:14:08.000000000 +0300
+@@ -45,7 +45,7 @@
+ 
+ ### The object files (add further files here):
+ 
+-OBJS = $(PLUGIN).o i18n.o checkerOsd.o config.o
++OBJS = $(PLUGIN).o  checkerOsd.o config.o
+ 
+ ### Implicit rules:
+ 
+@@ -61,9 +61,34 @@
+ 
+ -include $(DEPFILE)
+ 
++### Internationalization (I18N):
++
++PODIR     = po
++LOCALEDIR = $(VDRDIR)/locale
++I18Npo    = $(wildcard $(PODIR)/*.po)
++I18Nmsgs  = $(addprefix $(LOCALEDIR)/, $(addsuffix /LC_MESSAGES/vdr-$(PLUGIN).mo, $(notdir $(foreach file, $(I18Npo), $(basename $(file))))))
++I18Npot   = $(PODIR)/$(PLUGIN).pot
++
++%.mo: %.po
++	msgfmt -c -o $@ $<
++
++$(I18Npot): $(wildcard *.[ch] *.[ch]xx *.cc *.[ch]pp *.hh)
++	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --msgid-bugs-address='<http://qa.mandriva.com/>' -o $@ $^
++
++%.po: $(I18Npot)
++	msgmerge -U --no-wrap --no-location --backup=none -q $@ $<
++	@touch $@
++
++$(I18Nmsgs): $(LOCALEDIR)/%/LC_MESSAGES/vdr-$(PLUGIN).mo: $(PODIR)/%.mo
++	@mkdir -p $(dir $@)
++	cp $< $@
++
++.PHONY: i18n
++i18n: $(I18Nmsgs)
++
+ ### Targets:
+ 
+-all: libvdr-$(PLUGIN).so
++all: libvdr-$(PLUGIN).so i18n
+ 
+ libvdr-$(PLUGIN).so: $(OBJS)
+ 	$(CXX) $(CXXFLAGS) -shared $(OBJS) -o $@
+@@ -79,4 +104,5 @@
+ 	@echo Distribution package created as $(PACKAGE).tgz
+ 
+ clean:
++	@-rm -f $(PODIR)/*.mo $(PODIR)/*.pot
+ 	@-rm -f $(OBJS) $(DEPFILE) *.so *.tar.gz core* *~
+Index: timeline-1.0.141/i18n.c
+===================================================================
+--- timeline-1.0.141/i18n.c
++++ timeline-1.0.141/i18n.c	2008-04-25 11:14:08.000000000 +0300
+@@ -1,234 +0,0 @@
+-/*
+- * i18n.c: Internationalization
+- *
+- * See the README file for copyright information and how to reach the author.
+- *
+- * $Id: i18n.c,v 1.5 2006/06/18 11:46:31 schmitzj Exp $
+- *
+- */
+-
+-#include "i18n.h"
+-
+-const tI18nPhrase tlPhrases[] = {
+-  { "Timeline",
+-    "Zeitleiste",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Aikajana",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    ""
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "Show timer overview and collisions",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "N‰ytt‰‰ p‰‰llekk‰iset ajastimet",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    ""
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "No conflicts",
+-    "Keine Konflikte",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Ei p‰‰llekk‰isyyksi‰",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    ""
+-    "",
+-    "",
+-    "",
+-  },
+-  { "Conflict on",
+-    "Konflikt am",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "P‰‰llekk‰isyys",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    ""
+-    "",
+-    "",
+-    "",
+-  },
+-  { "Repeating conflict on",
+-    "Wiederh. Konflikt an",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Toistuva p‰‰llekk‰isyys",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    ""
+-    "",
+-    "",
+-    "",
+-  },
+-  { "same input device",
+-    "gleiche Eingangs-Device",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "sama vastaanotin",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    ""
+-    "",
+-    "",
+-    "",
+-  },
+-  { "(today)",
+-    "(heute)",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "(t‰n‰‰n)",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    ""
+-    "",
+-    "",
+-    "",
+-  },
+-  { "Cursor up/down/left/right+Nums",
+-    "Pfeil hoch/runter/links/rechts+Zahlen",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Ylˆs/Alas/Vasen/Oikea/Numeron‰pp‰imet",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    ""
+-    "",
+-    "",
+-    "",
+-  },
+-  { "ignore primary interface",
+-    "ignoriere Prim‰res Interface",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "J‰t‰ p‰‰vastaanotin huomioimatta",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    ""
+-    "",
+-    "",
+-    "",
+-  },
+-  { "Prio",
+-    "Prio",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "prioriteetti",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    ""
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { NULL }
+-  };
+Index: timeline-1.0.141/i18n.h
+===================================================================
+--- timeline-1.0.141/i18n.h
++++ timeline-1.0.141/i18n.h	2008-04-25 11:14:08.000000000 +0300
+@@ -1,18 +0,0 @@
+-/*
+- * i18n.h: Internationalization
+- *
+- * See the README file for copyright information and how to reach the author.
+- *
+- * $Id: i18n.h,v 1.2 2005/01/01 22:11:13 schmitzj Exp $
+- *
+- */
+-
+-#ifndef _I18N__H
+-#define _I18N__H
+-
+-#include <vdr/i18n.h>
+-#include <vdr/config.h> // for VDRVERSNUM define only
+-
+-extern const tI18nPhrase tlPhrases[];
+-
+-#endif //_I18N__H
+Index: timeline-1.0.141/timeline.c
+===================================================================
+--- timeline-1.0.141/timeline.c
++++ timeline-1.0.141/timeline.c	2008-04-25 11:14:08.000000000 +0300
+@@ -11,10 +11,10 @@
+ #include <vdr/device.h>
+ #include "checkerOsd.h"
+ #include "config.h"
+-#include "i18n.h"
++
+ 
+ static const char *VERSION        = "1.0.141";
+-static const char *DESCRIPTION    = "Show timer overview and collisions";
++static const char *DESCRIPTION    = trNOOP("Show timer overview and collisions");
+ static const char *MAINMENUENTRY  = "Timeline";
+ 
+ class cPluginTimeline : public cPlugin {
+@@ -85,7 +85,7 @@
+ bool cPluginTimeline::Initialize(void)
+ {
+   // Initialize any background activities the plugin shall perform.
+-	RegisterI18n(tlPhrases);
++	
+   	return true;
+ }
+ 
+Index: timeline-1.0.141/po/de_DE.po
+===================================================================
+--- timeline-1.0.141/po/de_DE.po
++++ timeline-1.0.141/po/de_DE.po	2008-04-25 11:14:08.000000000 +0300
+@@ -0,0 +1,56 @@
++# VDR timeline plugin language source file.
++# Copyright (C) YEAR THE VDR-timeline'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-timeline package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-timeline\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-25 11:14+0300\n"
++"PO-Revision-Date: 2008-04-25 11:14+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-15\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: checkerOsd.c:77
++msgid "Prio"
++msgstr "Prio"
++
++#: checkerOsd.c:247 checkerOsd.c:278 checkerOsd.c:331
++msgid "Conflict on"
++msgstr "Konflikt am"
++
++#: checkerOsd.c:247 checkerOsd.c:278 checkerOsd.c:316 checkerOsd.c:331
++msgid "same input device"
++msgstr "gleiche Eingangs-Device"
++
++#: checkerOsd.c:316
++msgid "Repeating conflict on"
++msgstr "Wiederh. Konflikt an"
++
++#: checkerOsd.c:398
++msgid "No conflicts"
++msgstr "Keine Konflikte"
++
++#: checkerOsd.c:455
++msgid "Cursor up/down/left/right+Nums"
++msgstr "Pfeil hoch/runter/links/rechts+Zahlen"
++
++#: checkerOsd.c:489
++msgid "(today)"
++msgstr "(heute)"
++
++#: checkerOsd.c:763 checkerOsd.c:786 checkerOsd.c:788
++msgid "Timeline"
++msgstr "Zeitleiste"
++
++#: config.c:51
++msgid "ignore primary interface"
++msgstr "ignoriere Prim‰res Interface"
++
++#: timeline.c:17
++msgid "Show timer overview and collisions"
++msgstr ""
+Index: timeline-1.0.141/po/fi_FI.po
+===================================================================
+--- timeline-1.0.141/po/fi_FI.po
++++ timeline-1.0.141/po/fi_FI.po	2008-04-25 11:14:08.000000000 +0300
+@@ -0,0 +1,56 @@
++# VDR timeline plugin language source file.
++# Copyright (C) YEAR THE VDR-timeline'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-timeline package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-timeline\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-25 11:14+0300\n"
++"PO-Revision-Date: 2008-04-25 11:14+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-15\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: checkerOsd.c:77
++msgid "Prio"
++msgstr "prioriteetti"
++
++#: checkerOsd.c:247 checkerOsd.c:278 checkerOsd.c:331
++msgid "Conflict on"
++msgstr "P‰‰llekk‰isyys"
++
++#: checkerOsd.c:247 checkerOsd.c:278 checkerOsd.c:316 checkerOsd.c:331
++msgid "same input device"
++msgstr "sama vastaanotin"
++
++#: checkerOsd.c:316
++msgid "Repeating conflict on"
++msgstr "Toistuva p‰‰llekk‰isyys"
++
++#: checkerOsd.c:398
++msgid "No conflicts"
++msgstr "Ei p‰‰llekk‰isyyksi‰"
++
++#: checkerOsd.c:455
++msgid "Cursor up/down/left/right+Nums"
++msgstr "Ylˆs/Alas/Vasen/Oikea/Numeron‰pp‰imet"
++
++#: checkerOsd.c:489
++msgid "(today)"
++msgstr "(t‰n‰‰n)"
++
++#: checkerOsd.c:763 checkerOsd.c:786 checkerOsd.c:788
++msgid "Timeline"
++msgstr "Aikajana"
++
++#: config.c:51
++msgid "ignore primary interface"
++msgstr "J‰t‰ p‰‰vastaanotin huomioimatta"
++
++#: timeline.c:17
++msgid "Show timer overview and collisions"
++msgstr "N‰ytt‰‰ p‰‰llekk‰iset ajastimet"
+Index: timeline-1.0.141/po/timeline.pot
+===================================================================
+--- timeline-1.0.141/po/timeline.pot
++++ timeline-1.0.141/po/timeline.pot	2008-04-25 11:14:08.000000000 +0300
+@@ -0,0 +1,57 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the PACKAGE package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++#, fuzzy
++msgid ""
++msgstr ""
++"Project-Id-Version: PACKAGE VERSION\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-25 11:14+0300\n"
++"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: LANGUAGE <LL@li.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=CHARSET\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: checkerOsd.c:77
++msgid "Prio"
++msgstr ""
++
++#: checkerOsd.c:247 checkerOsd.c:278 checkerOsd.c:331
++msgid "Conflict on"
++msgstr ""
++
++#: checkerOsd.c:247 checkerOsd.c:278 checkerOsd.c:316 checkerOsd.c:331
++msgid "same input device"
++msgstr ""
++
++#: checkerOsd.c:316
++msgid "Repeating conflict on"
++msgstr ""
++
++#: checkerOsd.c:398
++msgid "No conflicts"
++msgstr ""
++
++#: checkerOsd.c:455
++msgid "Cursor up/down/left/right+Nums"
++msgstr ""
++
++#: checkerOsd.c:489
++msgid "(today)"
++msgstr ""
++
++#: checkerOsd.c:763 checkerOsd.c:786 checkerOsd.c:788
++msgid "Timeline"
++msgstr ""
++
++#: config.c:51
++msgid "ignore primary interface"
++msgstr ""
++
++#: timeline.c:17
++msgid "Show timer overview and collisions"
++msgstr ""
