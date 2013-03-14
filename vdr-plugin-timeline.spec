@@ -2,7 +2,7 @@
 %define plugin	timeline
 %define name	vdr-plugin-%plugin
 %define version	1.0.141
-%define rel	16
+%define rel	17
 
 Summary:	VDR plugin: Show timer overview and collisions
 Name:		%name
@@ -15,7 +15,6 @@ Source:		vdr-%plugin-%version.tar.bz2
 Patch0:		91_timeline-1.0.141-1.5.0.dpatch
 Patch1:		92_timeline-1.0.141-vdr-1.5.3.dpatch
 Patch2:		timeline-1.0.141-i18n-1.6.patch
-BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	vdr-devel >= 1.6.0
 Requires:	vdr-abi = %vdr_abi
 
@@ -39,17 +38,7 @@ and
 %vdr_plugin_build
 
 %install
-rm -rf %{buildroot}
 %vdr_plugin_install
-
-%clean
-rm -rf %{buildroot}
-
-%post
-%vdr_plugin_post %plugin
-
-%postun
-%vdr_plugin_postun %plugin
 
 %files -f %plugin.vdr
 %defattr(-,root,root)
