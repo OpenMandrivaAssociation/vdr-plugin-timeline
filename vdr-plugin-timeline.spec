@@ -10,7 +10,7 @@ Version:	%version
 Release:	%mkrel %rel
 Group:		Video
 License:	GPL
-URL:		http://www.js-home.org/vdr/timeline/
+URL:		https://www.js-home.org/vdr/timeline/
 Source:		vdr-%plugin-%version.tar.bz2
 Patch0:		91_timeline-1.0.141-1.5.0.dpatch
 Patch1:		92_timeline-1.0.141-vdr-1.5.3.dpatch
