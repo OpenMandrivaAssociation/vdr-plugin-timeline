@@ -7,7 +7,7 @@
 Summary:	VDR plugin: Show timer overview and collisions
 Name:		%name
 Version:	%version
-Release:	%mkrel %rel
+Release:	%rel.1
 Group:		Video
 License:	GPL
 URL:		https://www.js-home.org/vdr/timeline/
